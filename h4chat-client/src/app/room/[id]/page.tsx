@@ -52,7 +52,7 @@ export default function RoomPage({
       setRoomId(data.id)
 
       const socket = new WebSocket(
-         `wss://h4chat.onrender.com/ws?room=${data.id}`
+        `wss://h4chat.onrender.com/ws?room=${data.id}`
       )
 
       socketRef.current = socket
@@ -119,9 +119,15 @@ export default function RoomPage({
               H4Chat Terminal
             </p>
 
-            <p className="text-xs text-zinc-700 mt-1">
-              room/{roomId}
-            </p>
+            <div className="flex items-center gap-3 mt-1">
+  <p className="text-xs text-zinc-700">
+    room/{roomId}
+  </p>
+
+  <p className="text-xs text-zinc-600 md:hidden">
+    online {users.length}
+  </p>
+</div>
           </div>
 
           <button
@@ -134,7 +140,7 @@ export default function RoomPage({
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-4 py-4 space-y-2">
+        <div className="flex-1 overflow-y-auto px-4 py-4 space-y-2 pb-24">
           {messages.map((msg, index) => (
             <div
               key={index}
@@ -166,10 +172,10 @@ export default function RoomPage({
                   </span>
 
                   {msg.timestamp && (
-  <span className="text-zinc-700 ml-3 text-xs">
-    [{msg.timestamp}]
-  </span>
-)}
+                    <span className="text-zinc-700 ml-3 text-xs">
+                      [{msg.timestamp}]
+                    </span>
+                  )}
                 </>
               )}
             </div>
@@ -178,26 +184,39 @@ export default function RoomPage({
           <div ref={bottomRef} />
         </div>
 
-        <div className="border-t border-zinc-800 px-4 py-3 flex items-center gap-3">
-          <span className="text-zinc-500">
-            h4chat:~$
-          </span>
+       <div className="fixed bottom-0 left-0 right-0 md:right-64 border-t border-zinc-900 bg-black px-4 py-3">
+          <div className="flex items-center gap-3">
+            <span className="text-zinc-500">
+              h4chat:~$
+            </span>
 
-          <input
-            value={message}
-            onChange={(e) =>
-              setMessage(
-                e.target.value
-              )
-            }
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                sendMessage()
+            <input
+              value={message}
+              onChange={(e) =>
+                setMessage(
+                  e.target.value
+                )
               }
-            }}
-            placeholder="enter message"
-            className="flex-1 bg-transparent outline-none text-white placeholder:text-zinc-700"
-          />
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  sendMessage()
+                }
+              }}
+              placeholder="enter message"
+              className="flex-1 bg-transparent outline-none text-white placeholder:text-zinc-700"
+            />
+
+            <button
+              onClick={sendMessage}
+              className="opacity-70 hover:opacity-100 transition"
+            >
+              <img
+                src="/send.png"
+                alt="send"
+                className="w-5 h-5"
+              />
+            </button>
+          </div>
         </div>
       </div>
 
