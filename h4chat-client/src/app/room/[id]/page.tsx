@@ -45,6 +45,9 @@ export default function RoomPage({
   const bottomRef =
     useRef<HTMLDivElement | null>(null)
 
+  const inputRef =
+    useRef<HTMLInputElement | null>(null)
+
   const secretKey = roomId || "h4chat"
 
   useEffect(() => {
@@ -79,6 +82,35 @@ export default function RoomPage({
       behavior: "smooth",
     })
   }, [messages])
+
+  useEffect(() => {
+    inputRef.current?.focus()
+  }, [])
+
+  useEffect(() => {
+    const handleKeyDown = () => {
+      const active =
+        document.activeElement
+
+      if (
+        active?.tagName !== "INPUT"
+      ) {
+        inputRef.current?.focus()
+      }
+    }
+
+    window.addEventListener(
+      "keydown",
+      handleKeyDown
+    )
+
+    return () => {
+      window.removeEventListener(
+        "keydown",
+        handleKeyDown
+      )
+    }
+  }, [])
 
   const sendMessage = () => {
     if (
@@ -120,14 +152,14 @@ export default function RoomPage({
             </p>
 
             <div className="flex items-center gap-3 mt-1">
-  <p className="text-xs text-zinc-700">
-    room/{roomId}
-  </p>
+              <p className="text-xs text-zinc-700">
+                room/{roomId}
+              </p>
 
-  <p className="text-xs text-zinc-600 md:hidden">
-    online {users.length}
-  </p>
-</div>
+              <p className="text-xs text-zinc-600 md:hidden">
+                online {users.length}
+              </p>
+            </div>
           </div>
 
           <button
@@ -184,13 +216,14 @@ export default function RoomPage({
           <div ref={bottomRef} />
         </div>
 
-       <div className="fixed bottom-0 left-0 right-0 md:right-64 border-t border-zinc-900 bg-black px-4 py-3">
+        <div className="fixed bottom-0 left-0 right-0 md:right-64 border-t border-zinc-900 bg-black px-4 py-3">
           <div className="flex items-center gap-3">
             <span className="text-zinc-500">
               h4chat:~$
             </span>
 
             <input
+              ref={inputRef}
               value={message}
               onChange={(e) =>
                 setMessage(
@@ -208,12 +241,11 @@ export default function RoomPage({
 
             <button
               onClick={sendMessage}
-              className="opacity-70 hover:opacity-100 transition"
             >
               <img
-                src="/send.png"
+                src="/send.svg"
                 alt="send"
-                className="w-5 h-5"
+                className="w-4 h-4 invert opacity-40"
               />
             </button>
           </div>
