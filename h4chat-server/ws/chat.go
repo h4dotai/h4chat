@@ -132,7 +132,7 @@ func HandleWebSocket(c *websocket.Conn) {
 
 		if len(room.Clients) == 0 {
 			go func() {
-				time.Sleep(5 * time.Minute)
+				time.Sleep(1 * time.Minute)
 
 				if rooms[roomID] != nil &&
 					len(rooms[roomID].Clients) == 0 {
