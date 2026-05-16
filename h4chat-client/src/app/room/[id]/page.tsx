@@ -52,7 +52,7 @@ export default function RoomPage({
       setRoomId(data.id)
 
       const socket = new WebSocket(
-        `ws://localhost:5000/ws?room=${data.id}`
+         `wss://h4chat.onrender.com/ws?room=${data.id}`
       )
 
       socketRef.current = socket
