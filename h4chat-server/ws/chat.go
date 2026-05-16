@@ -4,14 +4,16 @@ import (
 	"encoding/json"
 	"log"
 	"math/rand"
+	"time"
 
 	"github.com/gofiber/websocket/v2"
 )
 
 type Message struct {
-	Type     string `json:"type"`
-	Username string `json:"username"`
-	Text     string `json:"text"`
+	Type      string `json:"type"`
+	Username  string `json:"username"`
+	Text      string `json:"text"`
+	Timestamp string `json:"timestamp"`
 }
 
 type Client struct {
@@ -38,9 +40,7 @@ var names = []string{
 }
 
 func randomUsername() string {
-	return names[rand.Intn(len(names))] +
-		"_" +
-		string(rune(rand.Intn(900)+100))
+	return names[rand.Intn(len(names))]
 }
 
 func broadcastRoomData(roomID string) {
@@ -53,8 +53,8 @@ func broadcastRoomData(roomID string) {
 	}
 
 	payload := map[string]interface{}{
-		"type":    "users",
-		"users":   users,
+		"type":     "users",
+		"users":    users,
 		"messages": room.Messages,
 	}
 
@@ -75,7 +75,7 @@ func HandleWebSocket(c *websocket.Conn) {
 		rooms[roomID] = &Room{}
 	}
 
-	username := names[rand.Intn(len(names))]
+	username := randomUsername()
 
 	client := &Client{
 		Conn:     c,
@@ -89,9 +89,10 @@ func HandleWebSocket(c *websocket.Conn) {
 	)
 
 	joinMessage := Message{
-		Type:     "system",
-		Username: "system",
-		Text:     username + " joined",
+		Type:      "system",
+		Username:  "system",
+		Text:      username + " joined",
+		Timestamp: time.Now().Format("15:04"),
 	}
 
 	rooms[roomID].Messages = append(
@@ -118,9 +119,10 @@ func HandleWebSocket(c *websocket.Conn) {
 		room.Clients = updatedClients
 
 		leaveMessage := Message{
-			Type:     "system",
-			Username: "system",
-			Text:     username + " left",
+			Type:      "system",
+			Username:  "system",
+			Text:      username + " left",
+			Timestamp: time.Now().Format("15:04"),
 		}
 
 		room.Messages = append(
@@ -129,7 +131,20 @@ func HandleWebSocket(c *websocket.Conn) {
 		)
 
 		if len(room.Clients) == 0 {
-			delete(rooms, roomID)
+			go func() {
+				time.Sleep(5 * time.Minute)
+
+				if rooms[roomID] != nil &&
+					len(rooms[roomID].Clients) == 0 {
+
+					delete(rooms, roomID)
+
+					log.Println(
+						"room expired:",
+						roomID,
+					)
+				}
+			}()
 		} else {
 			broadcastRoomData(roomID)
 		}
@@ -149,8 +164,12 @@ func HandleWebSocket(c *websocket.Conn) {
 
 		json.Unmarshal(messageData, &message)
 
-		message.Type = "message"
-		message.Username = username
+		message = Message{
+	Type:      "message",
+	Username:  username,
+	Text:      message.Text,
+	Timestamp: time.Now().Format("15:04"),
+}
 
 		rooms[roomID].Messages = append(
 			rooms[roomID].Messages,
