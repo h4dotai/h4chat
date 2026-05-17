@@ -21,4 +21,4 @@ Copy the generated room link and send it to another user.
 ![Share Link Screenshot](./Readme_assets/ui.png)
 3. Start Chatting
 
-Once the other user joins using the link, you can chat anonymously in real time.
+Once the other user joins using the link, you can chat anonymously in real time. 
